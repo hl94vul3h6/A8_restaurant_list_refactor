@@ -5,6 +5,7 @@ const mongoose = require('mongoose')
 const Restaurant = require('./models/restaurant')
 // 引用 body-parser
 const bodyParser = require('body-parser')
+const methodOverride = require("method-override");
 
 if(process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
@@ -36,6 +37,8 @@ app.use(express.static("public"));
 // 用 app.use 規定每一筆請求都需要透過 body-parser 進行前置處理
 app.use(bodyParser.urlencoded({ extended: true }))
 
+app.use(methodOverride("_method"));
+
 app.get("/", (req, res) => {
   Restaurant.find() // 取出 Restaurant model 裡的所有資料
     .lean() // 把 Mongoose 的 Model 物件轉換成乾淨的 JavaScript 資料陣列
@@ -61,7 +64,7 @@ app.get("/restaurants/:restaurantId/edit", (req, res) => {
     .catch((err) => console.log(err));
 });
 
-app.post("/restaurants/:restaurantId/edit", (req, res) => {
+app.put("/restaurants/:restaurantId", (req, res) => {
   const { restaurantId } = req.params;
   Restaurant.findByIdAndUpdate(restaurantId, req.body)
     .then(() => res.redirect(`/`))
@@ -97,7 +100,7 @@ app.get("/restaurants/:restaurantId", (req, res) => {
     .catch((err) => console.log(err));
 });
 
-app.post("/restaurants/:restaurantId", (req, res) => {
+app.delete("/restaurants/:restaurantId", (req, res) => {
   const { restaurantId } = req.params;
   Restaurant.findByIdAndDelete(restaurantId)
     .then(() => res.redirect("/"))
